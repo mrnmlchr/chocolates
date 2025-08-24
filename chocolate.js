@@ -2,12 +2,11 @@ const http = require('http');
 const mysql = require('mysql2');
 const url = require('url');
 
-// Create DB connection
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'chocolates_db'  // changed database name
+  database: 'chocolates_db' 
 });
 
 db.connect(err => {
@@ -15,7 +14,6 @@ db.connect(err => {
   console.log('Connected to MySQL database');
 });
 
-// Create server
 const server = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
@@ -24,7 +22,6 @@ const server = http.createServer((req, res) => {
   const query = parsedUrl.query;
   const method = req.method;
 
-  // Get all chocolates or a single chocolate by id
   if (path === '/chocolates' && method === 'GET') {
     if (query.id) {
       db.query('SELECT * FROM chocolates WHERE id = ?', [query.id], (err, result) => {
@@ -38,8 +35,6 @@ const server = http.createServer((req, res) => {
       });
     }
   }
-
-  // Insert new chocolate
   else if (path === '/chocolates' && method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
@@ -56,7 +51,6 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  // Update chocolate
   else if (path === '/chocolates' && method === 'PUT') {
     let body = '';
     req.on('data', chunk => body += chunk);
@@ -72,22 +66,18 @@ const server = http.createServer((req, res) => {
       );
     });
   }
-
-  // Delete chocolate
   else if (path === '/chocolates' && method === 'DELETE') {
     db.query('DELETE FROM chocolates WHERE id=?', [query.id], (err, result) => {
       if (err) throw err;
       res.end(JSON.stringify({ message: 'Chocolate deleted' }));
     });
   }
-
   else {
     res.statusCode = 404;
     res.end(JSON.stringify({ error: 'Route not found' }));
   }
 });
 
-// Start server
 const port = 3000;
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
